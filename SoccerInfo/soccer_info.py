@@ -2,9 +2,14 @@ from bs4 import BeautifulSoup
 import requests
 import json
 
+headers = {
+    'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/54.0.2840.71 Safari/537.36',
+    'Referer': 'http://www.espnfc.us'
+}
+
 
 def get_espn_league_rank(url):
-    data = requests.get(url)
+    data = requests.get(url, headers=headers, timeout=1)
     data.encoding = 'utf-8'
     soup = BeautifulSoup(data.text, 'lxml')
     table = soup.find(id='tables-overall')
@@ -13,7 +18,7 @@ def get_espn_league_rank(url):
     for team in teams:
         try:
             team_name = team.find('a').text.strip()
-        except AttributeError:   # some team may not have official website, so the name would be in a different position
+        except AttributeError:  # some team may not have official website, so the name would be in a different position
             team_name = team.text.strip()
         rank.append(team_name)
     return rank
@@ -30,7 +35,7 @@ if __name__ == '__main__':
         print('****----------------****')
         print(league_name)
         for index, team in enumerate(table_list):
-            print('No{}. {}'.format(index+1, team))
+            print('No{}. {}'.format(index + 1, team))
 
     with open('League_Tables.json', 'w') as fp:
         json.dump(results, fp, ensure_ascii=False)
